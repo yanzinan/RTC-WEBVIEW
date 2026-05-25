@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Role-bot | 萝卜</title>
+
+    <!-- 性能优化标签 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no">
+    <!-- 预加载关键资源 -->
+    <link rel="preload" as="style" href="/src/index.css">
+
+    <!-- 首屏骨架屏样式（关键：解决白屏） -->
+    <!-- Loading动画样式 -->
+    <style>
+      /* 全局基础样式 */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      html, body {
+        height: 100%;
+        overflow: hidden;
+        background-color: #f8f8f8;
+      }
+      
+      #root {
+        height: 100%;
+        width: 100%;
+      }
+      
+      /* Loading容器 - 居中显示 */
+      .loading-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 24px;
+      }
+      
+      /* 音频主题的加载动画（贴合你的语音聊天场景） */
+      .audio-loading {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        height: 40px;
+      }
+      
+      .audio-bar {
+        width: 6px;
+        height: 100%;
+        background: #1677ff; /* 匹配antd-mobile主色调 */
+        border-radius: 3px;
+        animation: audioWave 1.2s ease-in-out infinite;
+      }
+      
+      /* 为每个音频条设置不同的动画延迟 */
+      .audio-bar:nth-child(1) { animation-delay: 0s; height: 20%; }
+      .audio-bar:nth-child(2) { animation-delay: 0.1s; height: 60%; }
+      .audio-bar:nth-child(3) { animation-delay: 0.2s; height: 40%; }
+      .audio-bar:nth-child(4) { animation-delay: 0.3s; height: 80%; }
+      .audio-bar:nth-child(5) { animation-delay: 0.4s; height: 50%; }
+      .audio-bar:nth-child(6) { animation-delay: 0.5s; height: 90%; }
+      .audio-bar:nth-child(7) { animation-delay: 0.6s; height: 30%; }
+      
+      /* 音频波动动画 */
+      @keyframes audioWave {
+        0%, 100% { transform: scaleY(0.5); opacity: 0.7; }
+        50% { transform: scaleY(1); opacity: 1; }
+      }
+      
+      /* 加载文字 */
+      .loading-text {
+        font-size: 16px;
+        color: #666;
+        text-align: center;
+        animation: fadeInOut 2s ease-in-out infinite;
+      }
+      
+      @keyframes fadeInOut {
+        0%, 100% { opacity: 0.7; }
+        50% { opacity: 1; }
+      }
+      
+      /* 备用：圆形加载动画（可选） */
+      .circle-loading {
+        width: 48px;
+        height: 48px;
+        border: 4px solid #e0e0e0;
+        border-top: 4px solid #1677ff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 骨架屏：在React加载完成前显示 -->
+    <div id="root">
+      <div class="loading-container">
+        <!-- 音频波形加载动画（推荐） -->
+        <div class="audio-loading">
+          <div class="audio-bar"></div>
+          <div class="audio-bar"></div>
+          <div class="audio-bar"></div>
+          <div class="audio-bar"></div>
+          <div class="audio-bar"></div>
+          <div class="audio-bar"></div>
+          <div class="audio-bar"></div>
+        </div>
+        
+        <!-- 加载提示文字 -->
+        <div class="loading-text">正在连接语音助手...</div>
+        
+        <!-- 备用圆形加载动画（如需替换，注释上面的audio-loading，取消下面注释） -->
+        <!-- <div class="circle-loading"></div> -->
+      </div>
+    </div>
+    <!-- 异步加载主脚本 -->
+    <script type="module" src="/src/main.tsx" defer></script>
+  </body>
+</html>
