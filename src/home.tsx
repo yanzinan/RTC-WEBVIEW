@@ -28,6 +28,8 @@ function Home(){
   const [audioEnabled, setAudioEnabled] = useState(true);
   // 当前每分钟消耗的资源点数
   const currentMinuteCostPoint = useRef(0)
+  // pat令牌
+  const patToken = useRef('')
   // 计算剩余点数
   const balanceRef = useRef(0)
   // 聊天室状态 
@@ -87,6 +89,12 @@ function Home(){
             balanceRef.current = paramObject.balance
             // 存储token
             localStorage.setItem("token",paramObject.token)
+            // 获取rtc配置
+            request.post('/agent/rtc/config', {})
+            .then(res => {
+              currentMinuteCostPoint.current = res.data.rtc_m_cost;
+              patToken.current = res.data.rtc_pat
+            }).catch(err => console.error(err));
         } catch (error) {
             console.error('参数解析失败:', error);
         }
@@ -151,33 +159,30 @@ function Home(){
     // 获取voiceId
     let { voiceId } = miniToWebParam.currentInfo;
 
-    request.post('/agent/rtc/config', {})
-    .then(res => {
-      currentMinuteCostPoint.current = res.data.rtc_m_cost;
+    const client = new RealtimeClient({
+      accessToken: patToken.current,
+      botId:botId,
+      userId:userId,
+      conversationId:conversationId,
+      connectorId: '1024',
+      voiceId: voiceId,
+      allowPersonalAccessTokenInBrowser: true, // 可选：允许在浏览器中使用个人访问令牌
+      debug: true,
+    });
 
-      const client = new RealtimeClient({
-        accessToken: res.data.rtc_pat,
-        botId:botId,
-        userId:userId,
-        conversationId:conversationId,
-        connectorId: '1024',
-        voiceId: voiceId,
-        allowPersonalAccessTokenInBrowser: true, // 可选：允许在浏览器中使用个人访问令牌
-        debug: true,
-      });
-  
-      clientRef.current = client;
-  
-      handleMessageEvent();
-    })
-    .catch(err => console.error(err));
+    clientRef.current = client;
+
+    handleMessageEvent();
+    
     
   }
 
   const handleMessageEvent = async () => {
     let { prefix } = miniToWebParam;
     prefix = prefix.replace(/\n/g, '');
+
     clientRef.current?.on(EventNames.ALL, (eventName, event: any) => {
+      console.log(event)
       // 智能体加入房间
       if(eventName == 'server.bot.join'){
         // 1. 发送上行事件 更新房间配置
@@ -203,6 +208,7 @@ function Home(){
           if ((countRef.current - 1) % 60 === 0) {
             // 判断剩余资源点是否大于每分钟消耗的资源点  大于每分钟消耗的资源点请求接口扣除每分钟消耗的资源点 并且将缓存中的资源点数减去每分钟消耗的
             if(balanceRef.current >= currentMinuteCostPoint.current){
+              console.log(currentMinuteCostPoint.current)
               let { id } = miniToWebParam.currentInfo;
               request.post('/wallet/consume/rtc/minutes', {
                 agent_id:id
